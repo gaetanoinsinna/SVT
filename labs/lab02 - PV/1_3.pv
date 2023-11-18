@@ -1,0 +1,105 @@
+ (*
+   Sample handshake protocol (typed version)
+ *)
+
+type pkey.	(* public key *)
+type skey.	(* private key *)
+type keymat.	(* key material *)
+type result.	(* result of check signature *)
+
+free c:channel.			(* the public channel *)
+free s:bitstring [private]. 	(* the secret *)
+
+(* Public-key Encryption *)
+fun penc(bitstring, pkey): bitstring.
+fun pk(keymat): pkey.
+fun sk(keymat): skey.
+reduc forall x:bitstring, y:keymat; pdec(penc(x,pk(y)),sk(y)) = x.
+
+(* Signatures *)
+fun ok():result.
+fun sign(bitstring, skey): bitstring.
+reduc forall m:bitstring, y:keymat; getmess(sign(m,sk(y))) = m.
+reduc forall m:bitstring, y:keymat; checksign(sign(m,sk(y)), pk(y)) = ok().
+
+(* Shared-key cryptography *)
+fun senc(bitstring, bitstring): bitstring.
+reduc forall x: bitstring, y: bitstring; sdec(senc(x,y),y) = x.
+
+
+(* Test whether s is secret *)
+query attacker(s).
+
+(* Test reachability *)
+event endA().
+event endB().
+query event(endA()).
+query event(endB()).
+
+(* Test authentication *)
+event bA(pkey,pkey,bitstring,bitstring).
+event eB(pkey,pkey,bitstring,bitstring).
+query x:pkey,y:pkey,z:bitstring,n:bitstring; inj-event(eB(x,y,z,n)) ==> inj-event(bA(x,y,z,n)).
+
+(* Test integrity *)
+event eA(bitstring).
+event bB(bitstring).
+query sec:bitstring; inj-event(eA(sec)) ==> inj-event(bB(sec)). (*when A receives B has already sent [2nd event ==> 1st event] *)
+
+
+(* The process *)
+
+let pA(kpA: keymat, pkB: pkey) =
+        (*new k bitstring in which we will store the key*)
+         new shared_key:bitstring;
+         (*retrieve in input from the channel the nonce bitstring sent by B*)
+         in (c,nonce:bitstring);
+         (*pk retrieve the public key from the keymaterial of A *)
+	       event bA(pk(kpA),pkB,shared_key,nonce);
+         (*sent on the channel the private encryption of the signature performend with the secret k and the nonce
+         the nonce is sent to prove that it B the one who talks with A and vice versa*)
+         out(c, penc(sign((shared_key,nonce), sk(kpA)), pkB));
+         (*retrieve from the channel the secret encrypted with the shared key*)
+ 	       in(c,enc_sec:bitstring);
+         (*decrypt and retrive the seceret*)
+         let sec=sdec(enc_sec, shared_key) in 
+         (*receive the secret otherwise it wouldn't decrypt with the key that already has exchanged with B
+         it is like a secure channel built between A and B*)
+         event eA(sec);
+         event endA(); 0. 
+
+let pB(kpB: keymat, pkA: pkey) =
+        (*creation of the nonce*)
+         new nonce:bitstring;
+         (*sending the nonce on the channel*)
+         out(c,nonce);
+        (*retrieve from the channel the signature of the tuple (k,n) encrypted by the public key of B
+        enc_nshkey = encrypted shared key with the nonce*)
+         in(c, enc_nshkey:bitstring); 
+         (*decryption of the string with the secret key of B*)
+         let sig_nshkey=pdec(enc_nshkey, sk(kpB)) in
+         (*check if the sign is correct, the signature is signed with the public key of the signer -> A  *)
+         if checksign(sig_nshkey, pkA)=ok() then
+         (*retrieve the secret from y1 that is the tuple*)
+         let nshkey=getmess(sig_nshkey) in
+         (*extract the values from the tuple -> the nonce is *)
+         let (shared_key:bitstring,=nonce)=nshkey in 
+	       event eB(pkA,pk(kpB),shared_key,nonce); (*adding the nonce on the event*)
+         event bB(s); (*already sent the seceret*)
+         out(c, senc(s, shared_key)); 
+         
+	       event endB(); 0. 
+
+process 
+         new kpA:keymat; new kpB:keymat;
+         (!out(c, pk(kpA)); 0 | !out(c, pk(kpB)); 0 |
+          !pA(kpA, pk(kpB))  | !pB(kpB, pk(kpA))
+         )
+
+
+(* EXPECTPV
+Query not attacker(s[]) is true.
+Query not event(endA) is false.
+Query not event(endB) is false.
+Query inj-event(eB(x_1,y_1,z)) ==> inj-event(bA(x_1,y_1,z)) is false.
+END *)
