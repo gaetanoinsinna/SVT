@@ -28,7 +28,7 @@ fun senc(bitstring, bitstring): bitstring.
 reduc forall x: bitstring, y: bitstring; sdec(senc(x,y),y) = x.
 
 
-(* Test whether s is secret *)
+(* Test whether both s1 and s2 are secret *)
 query attacker(s1).
 query attacker(s2).
 
@@ -61,6 +61,7 @@ let pA(kpA: keymat, pkB: pkey,sec:bitstring) =
          event eA(sec);
          event endA(); 0. 
 
+(*introduce the secret as parameter here*)
 let pB(kpB: keymat, pkA: pkey, sec:bitstring) =
          new nonce:bitstring;
          out(c,nonce);
@@ -75,6 +76,7 @@ let pB(kpB: keymat, pkA: pkey, sec:bitstring) =
          
 	       event endB(); 0. 
 
+(* The main change of the code was here*)
 process
   new kpA:keymat; new kpB:keymat;
   (!out(c, pk(kpA)); 0 | !out(c, pk(kpB)); 0 |

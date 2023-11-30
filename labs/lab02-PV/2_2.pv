@@ -1,0 +1,51 @@
+ (*
+   Example of weak secret 
+ *)
+
+free c:channel.			(* the public channel *)
+free s:bitstring [private]. 	(* the secret *)
+
+(* Cryptographic Hash *)
+fun hash(bitstring): bitstring.
+
+(* Test whether both s and high_entropy are secret *)
+query attacker(s).
+
+
+(* Test whether s is subject to offline guessing attacks *)
+weaksecret s.
+
+(* Test reachability *)
+event endS().
+event endR().
+query event(endS()).
+query event(endR()).
+
+(* The process *)
+
+(* S is the sender *)
+let pS() =
+         (* introduce a new high_entropy number (assume it's long enough) *)
+         new high_entropy:bitstring;
+         (* send in the public channel the hash of the tuple (weak_secret,high_entropy) *)
+         out(c, hash((s,high_entropy)));
+         event endS(); 0. 
+
+(* R is the receiver *)
+let pR() = 
+         (* receive from the public channel the hash of the secret*)
+         in(c, y:bitstring); 
+	 event endR(); 0. 
+
+process 
+         (
+          !pS()  | !pR()
+         )
+
+
+(* EXPECTPV
+Query not attacker(s[]) is true.
+Weak secret s is false.
+Query not event(endS) is false.
+Query not event(endR) is false.
+END *)
