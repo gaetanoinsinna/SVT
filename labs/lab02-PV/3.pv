@@ -1,0 +1,56 @@
+(* We model the software file by means of a name (sw), and its associated metadata, such as software name,
+author, version, etc, by means of another name (swd). We use a process to model the issuer of the software, and
+we assume the issuer issues a software sw and its associated metadata swd protected by a signature (we assume
+the issuer has a private/public key pair). On the other side, we model a receiver of the software as another
+process that checks the signature before accepting the software with its metadata as authentic.
+Assuming that the issuer issues several distinct software packages, each one including a software file and its
+corresponding metadata, we want to make sure that the receiver will accept as valid only packages identical
+to those issued by the issuer, and not fake software file nor fake metadata nor other combinations (e.g. right
+software file with wrong metadata). *)
+
+type pkey.
+type skey.
+type keymat.
+type result.
+type string.
+
+free c:channel.
+free sw:bitstring. (* software *)
+free swd:string. (* metadata *)
+
+fun penc(bitstring, pkey): bitstring.
+fun pk(keymat): pkey.
+fun sk(keymat): skey.
+reduc forall x:bitstring, y:keymat; pdec(penc(x,pk(y)),sk(y)) = x.
+
+fun ok():result.
+fun sign(bitstring, skey): bitstring.
+reduc forall m:bitstring, y:keymat; getmess(sign(m,sk(y))) = m.
+reduc forall m:bitstring, y:keymat; checksign(sign(m,sk(y)), pk(y)) = ok().
+
+event issued(bitstring,string).
+event authenticated(bitstring,string).
+
+query sw: bitstring, swd: string; event (authenticated(sw,swd)) ==> event(issued(sw,swd)).
+
+event endSender().
+event endReceiver().
+
+query event(endSender()).
+query event(endReceiver()).
+
+let p_sender(key_pair: keymat, sw: bitstring, swd: string) =
+    event issued(sw,swd);
+    out(c, sign((sw,swd),sk(key_pair)));
+    event endSender(); 0.
+
+let p_receiver(pub_key: pkey) = 
+    in(c,signature:bitstring);
+    let (r_sw:bitstring,r_swd:string)=getmess(signature) in
+    if checksign(signature,pub_key)=ok() then
+    event authenticated(r_sw,r_swd);
+    event endReceiver(); 0.
+
+process 
+    new key_pair:keymat;
+    !(new sw:bitstring; new swd:string; !p_sender(key_pair,sw,swd))| !p_receiver(pk(key_pair))
