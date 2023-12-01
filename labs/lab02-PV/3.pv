@@ -31,6 +31,7 @@ reduc forall m:bitstring, y:keymat; checksign(sign(m,sk(y)), pk(y)) = ok().
 event issued(bitstring,string).
 event authenticated(bitstring,string).
 
+(* if authetication comes after issuing => the condition is respected *)
 query sw: bitstring, swd: string; event (authenticated(sw,swd)) ==> event(issued(sw,swd)).
 
 event endSender().
@@ -41,13 +42,19 @@ query event(endReceiver()).
 
 let p_sender(key_pair: keymat, sw: bitstring, swd: string) =
     event issued(sw,swd);
+    (* send the signature of sw and swd signed with the private key*)
     out(c, sign((sw,swd),sk(key_pair)));
     event endSender(); 0.
 
+(* the receiver needs only the public key of the vendor *)
 let p_receiver(pub_key: pkey) = 
+    (* receives the signature of sw and swd *)
     in(c,signature:bitstring);
+    (* decomposing r_sw (received sw) and r_swd*)
     let (r_sw:bitstring,r_swd:string)=getmess(signature) in
+    (* check the signature of the vendor thanks to the public key*)
     if checksign(signature,pub_key)=ok() then
+    (* if is ok => the sw is authenticated *)
     event authenticated(r_sw,r_swd);
     event endReceiver(); 0.
 
