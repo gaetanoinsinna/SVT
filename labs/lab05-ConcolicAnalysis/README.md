@@ -75,5 +75,36 @@ And the output is
 <SimulationManager with 1 active, 1 found, 10 avoid> 
 ```
 ## Conditional execution with PIE binaries
-> PIE stands for Position Independent Excutable, which means that every time you run the file it gest loaded into a different memory address. This means you cannot hardcode values such as address without finding out where they are.
 
+> PIE stands for Position Independent Excutable, which means that every time a binary is runned the file it gets loaded into a different memory address. This means you cannot hardcode values such as address without finding out where they are.
+
+```
+ipython3
+
+import angr
+p = angr.Project('./crackme3',load_options={"auto_load_libs":False})
+```
+
+The memory layout is randomised in this example. With ```radare2``` find the offset of the branch we want to reach.
+```
+0x000011b9
+```
+and with ```angr```  find the base address
+```
+p.loader.min_addr
+Out[x]: 4194304
+
+```
+> This address is an integer, so firstly convert it in hex value
+
+And now we can find the real address
+```
+0x4011b9
+```
+and repeat the steps described in last sections in order to crack the program
+
+```
+sm.explore(find=0x4011b9)
+found = sm.found[0]
+sm1 = p.factory.simulation_manager(found)
+```
