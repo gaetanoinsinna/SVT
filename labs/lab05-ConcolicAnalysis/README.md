@@ -116,3 +116,33 @@ sm1.active.posix.dumps(0) # 4294783846
 ```
 
 ## Working with known output
+The ```find``` function can be used also to look for a specific output (e.g., a string found thanks a bug or whatelse).
+
+
+```
+sm.explore(find=lambda s:b"Bien joue" in s.posix.dumps(1))
+print(sm.found[0].posix.dumps(0)) # 123456789/n
+```
+
+```
+sm.explore(find=lambda s:b"Good job mate" in s.posix.dumps(1))
+print(sm.found[0].posix.dumps(0)) # 4294783846
+```
+
+## Claripy
+
+```
+import angr, claripy
+p = angr.Project('./fairlight',load_options={"auto_load_libs":False})
+argv1 = claripy.BVS("argv1",8 * 0xe)
+initial_state = p.factory.entry_state(args=["./fairlight",argv1])
+
+sm.explore(find=0x00401a4d)
+found = sm.found[0]
+sm1 = p.factory.simulation_manager(found)
+sm1.step() and sm1.active[0].posix.dumps(1)
+```
+Again, the last two steps until the output is founded
+```
+b'OK - ACCESS GRANTED: CODE{4ngrman4gem3nt}\n'
+```
