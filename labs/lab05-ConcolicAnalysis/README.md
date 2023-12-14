@@ -107,4 +107,12 @@ and repeat the steps described in last sections in order to crack the program
 sm.explore(find=0x4011b9)
 found = sm.found[0]
 sm1 = p.factory.simulation_manager(found)
+sm1.step()
+sm1.active[0].posix.dumps(1)
+```
+
+The lasts two steps have to be repeated until the desired output is reached and we can extract the corret input
+
+```
+sm1.active.posix.dumps(0)
 ```
