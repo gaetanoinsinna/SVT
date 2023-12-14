@@ -67,7 +67,6 @@ We may want to avoid some parts of the code that we already know are useless. We
 ```
 sm = p.factory.simulation_manager(es)
 sm.explore(find=0x08048717,avoid=0x0804871e)
-
 ```
 And the output is
 
@@ -93,7 +92,6 @@ and with ```angr```  find the base address
 ```
 p.loader.min_addr
 Out[x]: 4194304
-
 ```
 > This address is an integer, so firstly convert it in hex value
 
@@ -114,5 +112,7 @@ sm1.active[0].posix.dumps(1)
 The lasts two steps have to be repeated until the desired output is reached and we can extract the corret input
 
 ```
-sm1.active.posix.dumps(0)
+sm1.active.posix.dumps(0) # 4294783846
 ```
+
+## Working with known output
