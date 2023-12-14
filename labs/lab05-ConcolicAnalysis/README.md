@@ -146,3 +146,16 @@ Again, the last two steps until the output is founded
 ```
 b'OK - ACCESS GRANTED: CODE{4ngrman4gem3nt}\n'
 ```
+# Exercises 
+## Exercise 1
+```
+offset = 0x0000124f
+base = 0x400000
+addr = 0x40124f
+```
+
+
+## Exercise 2
+## Exercise 3
+## Exercise 4
+## Exercise 5
