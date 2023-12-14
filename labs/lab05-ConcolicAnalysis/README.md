@@ -74,4 +74,6 @@ And the output is
 ``` 
 <SimulationManager with 1 active, 1 found, 10 avoid> 
 ```
+## Conditional execution with PIE binaries
+> PIE stands for Position Independent Excutable, which means that every time you run the file it gest loaded into a different memory address. This means you cannot hardcode values such as address without finding out where they are.
 
