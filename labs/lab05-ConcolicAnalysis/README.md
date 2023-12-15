@@ -149,13 +149,20 @@ b'OK - ACCESS GRANTED: CODE{4ngrman4gem3nt}\n'
 # Exercises 
 ## Exercise 1
 ```
-offset = 0x0000124f
+offset = 0x0000124f # it represents the offset, may change time to time
 base = 0x400000
 addr = 0x40124f
 ```
-
-
+---
+```
+sm.explore(find= lambda s:b"This is the answer" in s.posix.dumps(1))
+```
 ## Exercise 2
+This exercise could be solved by searching for the string "Good Job." among the strings or by disassambling the code, but this time we try to use Claripy.
+| dc084082 b46a40c8 364df430
 ## Exercise 3
+This exercise could be solved by searching for the string "Good Job." among the strings or by disassambling the code, but this time we try to use Claripy.
+| NLYXSEYQ PDVULKVJ TLOPVCDT WNSRLTTQ
 ## Exercise 4
+
 ## Exercise 5
