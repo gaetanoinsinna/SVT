@@ -165,5 +165,8 @@ This exercise could be solved by searching for the string "Good Job." among the 
 This exercise could be solved by searching for the string "Good Job." among the strings or by disassambling the code, but this time we try to use Claripy.
 > see ```solutions/exercise3.py```
 ## Exercise 4
-
+This exercise could be not solved by searching for srtings!
+> see ```solutions/exercise4.py```
 ## Exercise 5
+This exercise could be not solved by searching for srtings!
+> see ```solutions/exercise5.py```
