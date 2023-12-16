@@ -159,10 +159,11 @@ sm.explore(find= lambda s:b"This is the answer" in s.posix.dumps(1))
 ```
 ## Exercise 2
 This exercise could be solved by searching for the string "Good Job." among the strings or by disassambling the code, but this time we try to use Claripy.
-| dc084082 b46a40c8 364df430
+> see ```solutions/exercise2.py```
+
 ## Exercise 3
 This exercise could be solved by searching for the string "Good Job." among the strings or by disassambling the code, but this time we try to use Claripy.
-| NLYXSEYQ PDVULKVJ TLOPVCDT WNSRLTTQ
+> see ```solutions/exercise3.py```
 ## Exercise 4
 
 ## Exercise 5
