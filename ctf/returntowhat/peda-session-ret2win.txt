@@ -1,0 +1,6 @@
+break *0x401199
+break *0x40119a
+break *0x40119d
+break *0x4011a2
+break *0x4011a7
+

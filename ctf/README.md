@@ -1,0 +1,2 @@
+## ret2win
+> PYTHONIOENCODING=iso-8859-1
